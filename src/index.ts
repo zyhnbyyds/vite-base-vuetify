@@ -6,6 +6,7 @@ import i18n from './plugins/i18n'
 import { router } from './router'
 import './style/index.css'
 import 'vuetify/styles'
+import 'virtual:uno.css'
 import '@mdi/font/css/materialdesignicons.css'
 
 export const app = createApp(App)

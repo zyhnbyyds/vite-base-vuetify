@@ -11,7 +11,7 @@ const { $state } = useAuthStore()
 const email = ref('1873329653@qq.com')
 const verifyCode = ref('')
 const valid = ref(false)
-const isSendVerifyCode = ref(true)
+const isSendVerifyCode = ref(false)
 const [loading, load] = useToggle(false)
 
 async function sendVerifyCode() {
