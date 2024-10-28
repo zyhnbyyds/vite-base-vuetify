@@ -1,4 +1,5 @@
 import type { FetchResponse, ResolvedFetchOptions, ResponseType } from 'ofetch'
+import type { ApiResult } from './interface'
 import { ofetch } from 'ofetch'
 import i18n from '../plugins/i18n'
 import { router } from '../router'
@@ -45,11 +46,26 @@ export const coreReq = ofetch.create({
   },
 })
 
-export interface ApiResult<T = object> {
-  code: number
-  data: T | null
-  message: string
-}
+export const gateWayReq = ofetch.create({
+  timeout: 20000,
+  retry: 3,
+  retryDelay: 300,
+  baseURL: '/api/gateway',
+  onRequest({ options }) {
+    handleOnRequest(options)
+  },
+  onRequestError({ request, options, error }) {
+    console.log(error, request, options)
+  },
+
+  onResponseError({ response }) {
+    handleOnResponseError(response)
+  },
+
+  onResponse({ response }) {
+    handleOnResponse(response)
+  },
+})
 
 function handleOnRequest(options: ResolvedFetchOptions<ResponseType>) {
   const token = getToken()

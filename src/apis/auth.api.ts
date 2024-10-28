@@ -1,5 +1,4 @@
-import type { RegisterRes } from './interface'
-import type { ApiResult } from './request'
+import type { ApiResult, RegisterRes } from './interface'
 import { authReq } from './request'
 
 export function apiSendVerifyCode(email: string) {

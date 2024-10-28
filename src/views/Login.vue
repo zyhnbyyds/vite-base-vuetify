@@ -2,11 +2,10 @@
 import { useI18n } from 'vue-i18n'
 import { apiRegisterUseEmail, apiSendVerifyCode } from '../apis/auth.api'
 import { router } from '../router'
-import { useAuthStore } from '../store/auth'
+import { setToken } from '../utils/request'
 import { showMsg } from '../utils/snackbar'
 
 const { t } = useI18n()
-const { $state } = useAuthStore()
 
 const email = ref('1873329653@qq.com')
 const verifyCode = ref('')
@@ -31,16 +30,20 @@ async function handleClickLogin() {
     return
   }
   const { code, data } = await apiRegisterUseEmail(email.value, verifyCode.value)
-  if (code === 0) {
+  if (code === 0 && data) {
     showMsg(t('register_success'))
+    if (data.verify.status === 1) {
+      router.push('/profile')
+      return
+    }
+    setToken(data.token)
     router.push('/home')
-    $state.registerUserInfo = data
   }
 }
 </script>
 
 <template>
-  <v-container class="flex items-center justify-center h-screen overflow-hidden">
+  <v-container class="flex relative items-center justify-center h-screen w-screen overflow-hidden">
     <div class="fixed right-4 top-4">
       <v-menu>
         <template #activator="{ props }">
@@ -66,8 +69,8 @@ async function handleClickLogin() {
       </v-menu>
     </div>
 
-    <v-card class="p-4 max-w-md w-full" target="parent">
-      <v-card-title class="justify-center text-lg mb-5 font-bold">
+    <v-card class="p-4 max-w-md w-full  border-gray-50 border" target="parent">
+      <v-card-title class="justify-center text-lg py-5 mb-3 font-bold">
         {{ t('email_login_title') }}
       </v-card-title>
 
@@ -104,10 +107,10 @@ async function handleClickLogin() {
       </v-card-text>
 
       <v-card-actions class="flex justify-end">
-        <v-btn v-if="isSendVerifyCode" variant="outlined" :disabled="!valid" color="primary" @click="handleClickLogin">
+        <v-btn v-if="isSendVerifyCode" :disabled="!valid" color="primary" @click="handleClickLogin">
           {{ t('login') }}
         </v-btn>
-        <v-btn v-else color="primary" variant="outlined" :loading="loading" @click="sendVerifyCode">
+        <v-btn v-else color="primary" :loading="loading" @click="sendVerifyCode">
           {{ t('send_email_verify_code') }}
         </v-btn>
       </v-card-actions>

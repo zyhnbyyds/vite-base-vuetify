@@ -1,13 +1,22 @@
-import type { RegisterRes } from '../apis/interface'
 import { defineStore } from 'pinia'
-import { removeToken, setToken } from '../utils/request'
+import { doGetUserInfo } from '../apis/user.api'
+import { getToken, removeToken, setToken } from '../utils/request'
 
 export const useAuthStore = defineStore('auth-store', () => {
-  const registerUserInfo = ref<RegisterRes | null>(null)
-  const token = computed(() => registerUserInfo.value?.token)
+  const token = computed(() => getToken())
+  const userInfo = ref<any | null>(null)
+
+  watch(userInfo, async (val) => {
+    if (!val && token.value) {
+      const { data } = await doGetUserInfo()
+      userInfo.value = data
+    }
+  }, {
+    immediate: true,
+  })
 
   watch(
-    () => registerUserInfo.value?.token,
+    () => token.value,
     (newToken) => {
       if (newToken) {
         setToken(newToken)
@@ -19,7 +28,7 @@ export const useAuthStore = defineStore('auth-store', () => {
   )
 
   return {
-    registerUserInfo,
     token,
+    userInfo,
   }
 })

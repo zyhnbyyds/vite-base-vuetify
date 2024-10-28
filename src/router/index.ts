@@ -3,6 +3,10 @@ import { getToken } from '../utils/request'
 
 const constantRoutes = [
   {
+    path: '/',
+    redirect: '/home',
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('../views/Login.vue'),
@@ -19,6 +23,11 @@ export const dynamicRoutes = [
     path: '/about',
     name: 'about',
     component: () => import('../views/About.vue'),
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/Profile.vue'),
   },
 ]
 
@@ -50,13 +59,14 @@ router.beforeEach((to, _from, next) => {
     }
   }
 
-  if (to.path !== '/login' && !token) {
-    next({ name: 'login' })
-  }
-  else if (to.path === '/login' && token) {
-    next({ name: 'home' })
-  }
-  else {
-    next()
-  }
+  // if (to.path !== '/login' && !token) {
+  //   next({ name: 'login' })
+  // }
+  // else if (to.path === '/login' && token) {
+  //   next({ name: 'home' })
+  // }
+  // else {
+  //   next()
+  // }
+  next()
 })
