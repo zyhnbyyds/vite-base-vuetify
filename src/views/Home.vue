@@ -100,7 +100,7 @@ function handleClickSendMsg() {
   </v-app-bar>
 
   <v-navigation-drawer v-model="sideVisible">
-    <v-list v-model:selected="selectedUser" selected>
+    <v-list v-model:selected="selectedUser">
       <v-list-item
         v-for="(item) in mockUsers"
         :key="item.userId"
