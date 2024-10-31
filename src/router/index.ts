@@ -58,15 +58,13 @@ router.beforeEach((to, _from, next) => {
       return
     }
   }
-
-  // if (to.path !== '/login' && !token) {
-  //   next({ name: 'login' })
-  // }
-  // else if (to.path === '/login' && token) {
-  //   next({ name: 'home' })
-  // }
-  // else {
-  //   next()
-  // }
-  next()
+  if (to.path !== '/login' && !token) {
+    next({ name: 'login' })
+  }
+  else if (to.path === '/login' && token) {
+    next({ name: 'home' })
+  }
+  else {
+    next()
+  }
 })
