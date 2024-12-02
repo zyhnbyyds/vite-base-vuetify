@@ -8,6 +8,7 @@ import './style/index.css'
 import 'vuetify/styles'
 import 'virtual:uno.css'
 import '@mdi/font/css/materialdesignicons.css'
+import '@unocss/reset/normalize.css'
 
 export const app = createApp(App)
 const pinia = createPinia()

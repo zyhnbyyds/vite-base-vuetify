@@ -13,27 +13,25 @@ const props = withDefaults(defineProps<{
 
 const isActive = ref(false)
 const percent = ref(props.percent)
+const containerRef = ref<HTMLElement>()
 
-const topStyle = computed(() => {
-  return {
-    height: `${percent.value * 100}%`,
-  }
-})
+const { height } = useElementBounding(containerRef)
 
 const bottomStyle = computed(() => {
   return {
-    height: `${(1 - percent.value) * 100}%`,
+    height: `${(1 - percent.value) * height.value}px`,
   }
 })
 
-const containerRef = ref<HTMLElement>()
+const topStyle = computed(() => {
+  return {
+    height: `${(percent.value) * height.value}px`,
+  }
+})
+
 const userSelect = computed(() => isActive.value ? 'none' : 'auto')
 
 function onSplitterMouseDown() {
-  onSplitterDown()
-}
-
-function onSplitterTouchDown() {
   onSplitterDown()
 }
 
@@ -66,6 +64,12 @@ function calculateSplitterPercent(e: MouseEvent) {
   if (newPercent >= props.minPercent && newPercent <= props.maxPercent) {
     percent.value = newPercent
   }
+  else if (newPercent < props.minPercent) {
+    percent.value = props.minPercent
+  }
+  else if (newPercent > props.maxPercent) {
+    percent.value = props.maxPercent
+  }
 }
 
 function onBodyUp() {
@@ -82,46 +86,32 @@ function removeBodyListeners() {
   <div
     ref="containerRef"
     :style="{ userSelect }"
-    class="vue-splitter"
+    class="w-full overflow-hidden"
+    :class="{
+      'cursor-ns-resize': isActive,
+    }"
   >
     <div
-      class="splitter-pane"
       :style="topStyle"
     >
       <slot name="top-pane" />
     </div>
+
     <div
-      class="splitter"
-      :class="{ active: isActive }"
-      @mousedown="onSplitterMouseDown"
-      @touchstart.passive="onSplitterTouchDown"
-    />
-    <div
-      class="splitter-pane"
       :style="bottomStyle"
     >
-      <slot name="bottom-pane" />
+      <div
+        class="h-1.5 bg-light-5 w-1/3 mx-auto my-1 transition-all duration-500 transition-ease-linear rounded-md dark:bg-dark-3 bg-op50 cursor-ns-resize"
+        hover="bg-op-100 w-80% ring-1 ring-light-5 dark:ring-dark-3"
+        :class="isActive ? 'bg-op-100 w-80% ring-1 ring-light-5 dark:ring-dark-3 ' : ''"
+        @mousedown="onSplitterMouseDown"
+      />
+      <div class="h-[calc(100%-6px)]">
+        <slot name="bottom-pane" />
+      </div>
     </div>
   </div>
 </template>
 
-<style>
-.vue-splitter {
-  height: 100%;
-  width: 100%;
-}
-
-.vue-splitter.vertical {
-    width: 100%;
-}
-
-.vue-splitter .splitter {
-    background-color: #9e9e9e;
-    cursor: ns-resize;
-    height: 2px;
-}
-
-.vue-splitter .splitter-pane {
-    overflow-y: auto;
-}
+<style scoped>
 </style>

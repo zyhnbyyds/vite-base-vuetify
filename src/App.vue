@@ -8,11 +8,16 @@ const { t } = useI18n()
 const theme = useTheme()
 
 const preferredColor = usePreferredColorScheme()
+const dark = useDark()
 
 watch(preferredColor, (color) => {
   theme.global.name.value = color
 }, {
   immediate: true,
+})
+
+watch(theme.global.name, (theme) => {
+  dark.value = theme === 'dark'
 })
 </script>
 

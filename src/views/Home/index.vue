@@ -1,10 +1,14 @@
 <script lang='ts' setup>
+import type { ImUserFriend } from '@zgyh/prisma-mongo'
+import { doGetUserFriendList } from '@/apis/user.api'
 import { useTheme } from 'vuetify'
+import AddFriend from './components/AddFriend.vue'
 
 const [sideVisible, toggleSide] = useToggle(true)
 const theme = useTheme()
 
 const chatContainerRef = ref<HTMLElement>()
+const msgIptRef = ref<HTMLTextAreaElement>()
 // TODO: 完善类型以及参数优化
 
 const mockUsers = ref([
@@ -31,6 +35,8 @@ const mockUsers = ref([
   },
 ])
 
+const userFriendList = ref<ImUserFriend[]>([])
+
 const selectedUser = ref<number[]>([mockUsers.value[0].userId])
 
 const mockMessages = ref([
@@ -56,9 +62,17 @@ const mockMessages = ref([
 
 const sendMessageText = ref('')
 
+const isShowAdd = ref(false)
+
 const currentChattingUser = computed(() => {
   const chatUser = mockUsers.value.find(item => item.userId === selectedUser.value[0])
   return chatUser || null
+})
+
+const { focused } = useFocus(msgIptRef)
+onKeyStroke('Enter', () => {
+  if (focused.value)
+    handleClickSendMsg()
 })
 
 function toggleDark() {
@@ -83,6 +97,19 @@ function handleClickSendMsg() {
   })
   sendMessageText.value = ''
 }
+
+async function getUserFriendList() {
+  const { data } = await doGetUserFriendList()
+  if (data) {
+    userFriendList.value = data
+  }
+}
+
+function handleClickAdd() {
+  isShowAdd.value = !isShowAdd.value
+}
+
+getUserFriendList()
 </script>
 
 <template>
@@ -95,6 +122,12 @@ function handleClickSendMsg() {
     <v-btn icon @click="toggleDark">
       <VIcon>
         mdi-theme-light-dark
+      </VIcon>
+    </v-btn>
+
+    <v-btn icon @click="handleClickAdd">
+      <VIcon>
+        mdi-plus-circle-outline
       </VIcon>
     </v-btn>
   </v-app-bar>
@@ -113,30 +146,26 @@ function handleClickSendMsg() {
     </v-list>
   </v-navigation-drawer>
 
+  <AddFriend v-model="isShowAdd" />
+
   <v-main>
     <div h-full m-0 p-0>
-      <div h-15 w-full text-center font-bold text-6 py-2>
+      <div h-60px w-full text-center font-bold text-6 py-2>
         {{ currentChattingUser?.nickName }}
       </div>
-      <Split class="h-full" :percent="0.6" :min-percent="0.6" :max-percent="0.8">
+      <Split class="h-[calc(100vh-124px)]" :percent="0.7" :min-percent="0.3" :max-percent="0.9">
         <template #top-pane>
-          <div ref="chatContainerRef" px-5 h-full overflow-y-scroll scrollbar scrollbar-w-3 scrollbar-thumb-radius-4 scrollbar-track-color-transparent scrollbar-thumb-color-dark-500>
-            <!-- TODO: 抽离封装组件 -->
+          <div ref="chatContainerRef" px-5 h-full overflow-y-auto scrollbar scrollbar-w-2 scrollbar-thumb-radius-4 scrollbar-track-radius-2 scrollbar-track-color-transparent dark:scrollbar-thumb-color-dark-500 scrollbar-thumb-color-light-500>
             <div v-for="item in mockMessages" :key="item.messageId" mb-4 :class="item.isMe ? 'text-right' : 'text-left'">
-              <div :class="item.isMe ? 'flex-row-reverse' : ''" class="flex items-center ">
-                <img :src="item.avatar" h-10 w-10 rounded-sm :class="item.isMe ? 'ml-2' : 'mr-2'">
-                <div inline-block bg-light-600 dark:bg-dark-300 p-2 rounded-md>
-                  {{ item.content }}
-                </div>
-              </div>
+              <ChatMsgItem :chat-item-info="item" />
             </div>
           </div>
         </template>
         <template #bottom-pane>
-          <div overflow-hidden h-full w-full>
-            <textarea v-model="sendMessageText" resize-none p-4 transition-colors bg-dark-800 focus:dark:bg-dark-500 outline-none h-full w-full autofocus />
-            <div class="flex justify-end absolute right-4 bottom-4">
-              <v-btn color="primary" @click="handleClickSendMsg">
+          <div h-full w-full p-7 pt-1 relative of-hidden>
+            <textarea ref="msgIptRef" v-model="sendMessageText" class="emoji-style" rounded-lg resize-none p-4 transition-colors bg-light-6 focus:bg-light-3 dark:bg-dark-800 focus:dark:bg-dark-500 outline-none h-full w-full autofocus />
+            <div class="flex justify-end absolute right-9 bottom-9">
+              <v-btn :disabled="!sendMessageText" @click="handleClickSendMsg">
                 发送
               </v-btn>
             </div>
@@ -147,4 +176,5 @@ function handleClickSendMsg() {
   </v-main>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

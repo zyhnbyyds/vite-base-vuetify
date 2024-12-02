@@ -11,6 +11,9 @@ importers:
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
+      '@unocss/reset':
+        specifier: ^0.64.0
+        version: 0.64.0
       '@vitejs/plugin-vue':
         specifier: ^5.1.4
         version: 5.1.4(vite@5.4.10(@types/node@22.8.1)(terser@5.36.0))(vue@3.5.12(typescript@5.6.3))
@@ -45,6 +48,12 @@ importers:
       '@antfu/eslint-config':
         specifier: ^3.8.0
         version: 3.8.0(@typescript-eslint/utils@8.11.0(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3))(@vue/compiler-sfc@3.5.12)(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3)
+      '@zgyh/prisma-mongo':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@zgyh/prisma-mysql':
+        specifier: ^1.0.0
+        version: 1.0.0
       eslint:
         specifier: ^9.13.0
         version: 9.13.0(jiti@2.3.3)
@@ -838,6 +847,9 @@ packages:
   '@unocss/reset@0.63.6':
     resolution: {integrity: sha512-gq73RSZj54MOloqrivkoMPXCqNG2WpIyBT1AYlF76uKxEEbUD41E8uBUhLSKs7gFgF01yQJLRaIuyN1yw09pbQ==}
 
+  '@unocss/reset@0.64.0':
+    resolution: {integrity: sha512-75SiDtRX/mtg/7GWeoLfDfdWF4z59zF1XesL46FNd2hDZL36a+SZHIKB/J+PPzLyX9irqm3mAETS2PNfynuJpA==}
+
   '@unocss/rule-utils@0.56.5':
     resolution: {integrity: sha512-CXIGHCIC9B8WUl9KbbFMSZHcsIgfmI/+X0bjBv6xrgBVC1EQ2Acq4PYnJIbaRGBRAhl9wYjNL7Zq2UWOdowHAw==}
     engines: {node: '>=14'}
@@ -980,6 +992,12 @@ packages:
 
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
+
+  '@zgyh/prisma-mongo@1.0.0':
+    resolution: {integrity: sha512-Dz3LCxTun4wZu8gDqQE2lyLDU2vy7tgF+UJqgldDUO8OifjqadSceimnmuJlfTXt1QrOspN+gmwQ+aiZNVZTUA==}
+
+  '@zgyh/prisma-mysql@1.0.0':
+    resolution: {integrity: sha512-YY5yJcyr9e4XK/KhRn0iAPzfCV0gRz6wQYtzDA0ACEDiysP9bq3LTT62rkluob18syoLhOvFkwR5NxXRQFMXhQ==}
 
   acorn-import-attributes@1.9.5:
     resolution: {integrity: sha512-n02Vykv5uA3eHGM/Z2dQrcD56kL8TyDb2p1+0P83PClMnC/nc+anbQRhIOWnSq4Ke/KvDPrY3C9hDtC/A3eHnQ==}
@@ -3305,6 +3323,8 @@ snapshots:
 
   '@unocss/reset@0.63.6': {}
 
+  '@unocss/reset@0.64.0': {}
+
   '@unocss/rule-utils@0.56.5':
     dependencies:
       '@unocss/core': 0.56.5
@@ -3537,6 +3557,10 @@ snapshots:
 
   '@xtuc/long@4.2.2':
     optional: true
+
+  '@zgyh/prisma-mongo@1.0.0': {}
+
+  '@zgyh/prisma-mysql@1.0.0': {}
 
   acorn-import-attributes@1.9.5(acorn@8.13.0):
     dependencies:

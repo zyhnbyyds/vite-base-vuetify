@@ -4,3 +4,7 @@ body,
   height: 100%;
   overflow: hidden !important;
 }
+
+.emoji-style {
+  font-family: 'icomoon';
+}

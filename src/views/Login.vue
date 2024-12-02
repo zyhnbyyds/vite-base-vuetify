@@ -32,11 +32,11 @@ async function handleClickLogin() {
   const { code, data } = await apiRegisterUseEmail(email.value, verifyCode.value)
   if (code === 0 && data) {
     showMsg(t('register_success'))
+    setToken(data.token)
     if (data.verify.status === 1) {
       router.push('/profile')
       return
     }
-    setToken(data.token)
     router.push('/home')
   }
 }

@@ -4,7 +4,7 @@ import unpluginAutoImport from 'unplugin-auto-import/vite'
 import unpluginVueComponent from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import vuetify from 'vite-plugin-vuetify'
-import { authReqBaseUrl, coreReqBaseUrl } from './src/config/constant'
+import { authReqBaseUrl, coreReqBaseUrl, gatewayBaseUrl } from './src/config/constant'
 
 export default defineConfig({
   plugins: [
@@ -47,6 +47,18 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api\/auth/, ''),
       },
+
+      '/api/gateway': {
+        target: gatewayBaseUrl,
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api\/gateway/, ''),
+      },
+    },
+  },
+
+  resolve: {
+    alias: {
+      '@': '/src',
     },
   },
 })

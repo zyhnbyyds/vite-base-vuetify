@@ -17,7 +17,7 @@ export const dynamicRoutes = [
   {
     path: '/home',
     name: 'home',
-    component: () => import('../views/Home.vue'),
+    component: () => import('../views/Home/index.vue'),
   },
   {
     path: '/about',
