@@ -19,20 +19,6 @@ const mockUsers = ref([
     unread: 3,
     userId: 1,
   },
-  {
-    nickName: 'user2',
-    avatar: 'https://picsum.photos/200/300',
-    lastMessage: 'last message',
-    unread: 0,
-    userId: 2,
-  },
-  {
-    nickName: 'user3',
-    avatar: 'https://picsum.photos/200/300',
-    lastMessage: 'last message',
-    unread: 0,
-    userId: 3,
-  },
 ])
 
 const userFriendList = ref<ImUserFriend[]>([])
@@ -113,42 +99,56 @@ getUserFriendList()
 </script>
 
 <template>
-  <v-app-bar>
-    <v-app-bar-nav-icon @click="toggleSide()" />
-    <VToolbarTitle>ChatView</VToolbarTitle>
-
-    <v-spacer />
-
-    <v-btn icon @click="toggleDark">
-      <VIcon>
-        mdi-theme-light-dark
-      </VIcon>
-    </v-btn>
-
-    <v-btn icon @click="handleClickAdd">
-      <VIcon>
-        mdi-plus-circle-outline
-      </VIcon>
-    </v-btn>
-  </v-app-bar>
-
-  <v-navigation-drawer v-model="sideVisible">
-    <v-list v-model:selected="selectedUser">
-      <v-list-item
-        v-for="(item) in mockUsers"
-        :key="item.userId"
-        lines="two"
-        prepend-avatar="https://randomuser.me/api/portraits/women/8.jpg"
-        :subtitle="item.lastMessage"
-        :value="item.userId"
-        :title="item.nickName"
+  <Toolbar>
+    <template #start>
+      <Button
+        icon="pi pi-bars"
+        class="p-button-rounded p-button-text"
+        @click="toggleSide()"
       />
-    </v-list>
-  </v-navigation-drawer>
+    </template>
+    <template #center>
+      <span class="ml-2 text-lg font-bold">ChatView</span>
+    </template>
 
-  <AddFriend v-model="isShowAdd" />
+    <template #end>
+      <div class="ml-auto flex items-center">
+        <Button
+          icon="pi pi-moon"
+          class="p-button-rounded p-button-text"
+          @click="toggleDark"
+        />
+        <Button
+          icon="pi pi-plus-circle"
+          class="p-button-rounded p-button-text"
+          @click="handleClickAdd"
+        />
+      </div>
+    </template>
+  </Toolbar>
 
-  <v-main>
+  <Drawer v-model:visible="sideVisible" position="left">
+    <Listbox v-model="selectedUser" :options="mockUsers" option-label="nickName" option-value="userId">
+      <template #option="slotProps">
+        <div class="flex items-center">
+          <img
+            :src="slotProps.option.avatar || 'https://randomuser.me/api/portraits/women/8.jpg'"
+            class="w-10 h-10 rounded-full mr-3"
+            alt="avatar"
+          >
+          <div class="font-bold">
+            {{ slotProps.option.nickName }}
+          </div>
+        </div>
+      </template>
+    </Listbox>
+  </Drawer>
+
+  <Dialog v-model:visible="isShowAdd">
+    <AddFriend />
+  </Dialog>
+
+  <div class="flex flex-col h-screen">
     <div h-full m-0 p-0>
       <div h-60px w-full text-center font-bold text-6 py-2>
         {{ currentChattingUser?.nickName }}
@@ -161,6 +161,7 @@ getUserFriendList()
             </div>
           </div>
         </template>
+
         <template #bottom-pane>
           <div h-full w-full p-7 pt-1 relative of-hidden>
             <textarea ref="msgIptRef" v-model="sendMessageText" class="emoji-style" rounded-lg resize-none p-4 transition-colors bg-light-6 focus:bg-light-3 dark:bg-dark-800 focus:dark:bg-dark-500 outline-none h-full w-full autofocus />
@@ -173,7 +174,7 @@ getUserFriendList()
         </template>
       </Split>
     </div>
-  </v-main>
+  </div>
 </template>
 
 <style scoped>

@@ -1,9 +1,9 @@
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import unpluginAutoImport from 'unplugin-auto-import/vite'
 import unpluginVueComponent from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
-import vuetify from 'vite-plugin-vuetify'
 import { authReqBaseUrl, coreReqBaseUrl, gatewayBaseUrl } from './src/config/constant'
 
 export default defineConfig({
@@ -24,12 +24,12 @@ export default defineConfig({
         dts: './src/types/auto-imports.d.ts',
       },
     ),
-    vuetify({ autoImport: true }),
     unpluginVueComponent(
       {
         dirs: ['src/components'],
         extensions: ['vue'],
         dts: './src/types/components.d.ts',
+        resolvers: [PrimeVueResolver()],
       },
     ),
     UnoCSS(),

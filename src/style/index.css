@@ -8,3 +8,8 @@ body,
 .emoji-style {
   font-family: 'icomoon';
 }
+
+.p-inputicon {
+  transform: translateY(-50%) !important;
+  margin: auto !important;
+}

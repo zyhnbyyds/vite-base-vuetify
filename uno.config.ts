@@ -4,7 +4,6 @@ import {
   presetIcons,
   presetUno,
   presetWebFonts,
-  presetWind,
 } from 'unocss'
 import { presetScrollbar } from 'unocss-preset-scrollbar'
 

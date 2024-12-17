@@ -4,7 +4,9 @@ import { ofetch } from 'ofetch'
 import i18n from '../plugins/i18n'
 import { router } from '../router'
 import { getToken, removeToken } from '../utils/request'
-import { showMsg } from '../utils/snackbar'
+
+function showMsg(_message: string) {
+}
 
 export const authReq = ofetch.create({
   timeout: 20000,
