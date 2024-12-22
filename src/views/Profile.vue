@@ -1,14 +1,16 @@
-<script setup lang="ts">
+<script setup>
+import { useToast } from 'primevue/usetoast'
+
+const toast = useToast()
+
+function show() {
+  toast.add({ severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000 })
+}
 </script>
 
 <template>
-  <div>
-    <Button icon="pi pi-home" aria-label="Save" />
-    <Button label="Profile" icon="pi pi-user" />
-    <Button label="Save" icon="pi pi-check" icon-pos="right" />
-    <Button label="Search" icon="pi pi-search" icon-pos="top" />
-    <Button label="Update" icon="pi pi-refresh" icon-pos="bottom" />
+  <div class="flex justify-center">
+    <Toast />
+    <Button label="Show" @click="show()" />
   </div>
 </template>
-
-<style></style>

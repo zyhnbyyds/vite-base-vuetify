@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import type { SelectChangeEvent } from 'primevue/select'
+import { doGetUserInfo } from '@/apis/user.api'
+import { useAuthStore } from '@/store/auth'
 import { useI18n } from 'vue-i18n'
 import { apiRegisterUseEmail, apiSendVerifyCode } from '../apis/auth.api'
 import { router } from '../router'
 import { setToken } from '../utils/request'
 
 const { t } = useI18n()
+const { $state } = useAuthStore()
 
 const email = ref('1873329653@qq.com')
 const verifyCode = ref('')
@@ -37,13 +40,14 @@ async function handleClickLogin() {
       router.push('/profile')
       return
     }
+    $state.userInfo = (await doGetUserInfo()).data
     router.push('/home')
   }
 }
 </script>
 
 <template>
-  <div class="flex relative items-center justify-center h-screen w-screen overflow-hidden">
+  <div class="flex relative items-center bg-light-4 dark:bg-dark-4 justify-center h-screen w-screen overflow-hidden">
     <div class="fixed right-4 top-4">
       <Select
         :default-value="$i18n.locale"

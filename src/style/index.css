@@ -2,7 +2,8 @@ html,
 body, 
 #root {
   height: 100%;
-  overflow: hidden !important;
+  overflow: hidden;
+  margin: 0;
 }
 
 .emoji-style {

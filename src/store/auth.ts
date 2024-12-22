@@ -1,19 +1,10 @@
+import type { User } from '@zgyh/prisma-mysql'
 import { defineStore } from 'pinia'
-import { doGetUserInfo } from '../apis/user.api'
 import { getToken, removeToken, setToken } from '../utils/request'
 
 export const useAuthStore = defineStore('auth-store', () => {
   const token = computed(() => getToken())
-  const userInfo = ref<any | null>(null)
-
-  watch(userInfo, async (val) => {
-    if (!val && token.value) {
-      const { data } = await doGetUserInfo()
-      userInfo.value = data
-    }
-  }, {
-    immediate: true,
-  })
+  const userInfo = ref<User | null>(null)
 
   watch(
     () => token.value,
@@ -23,6 +14,7 @@ export const useAuthStore = defineStore('auth-store', () => {
       }
       else {
         removeToken()
+        userInfo.value = null
       }
     },
   )

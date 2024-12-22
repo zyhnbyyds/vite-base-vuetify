@@ -24,7 +24,10 @@ declare module 'vue' {
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('primevue/sidebar')['default']
     Split: typeof import('./../components/Split.vue')['default']
+    Splitter: typeof import('primevue/splitter')['default']
+    SplitterPanel: typeof import('primevue/splitterpanel')['default']
     TinyButton: typeof import('@opentiny/vue')['Button']
+    Toast: typeof import('primevue/toast')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
   }
 }
