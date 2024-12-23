@@ -35,6 +35,10 @@ export default defineConfig({
     UnoCSS(),
   ],
 
+  build: {
+    sourcemap: true,
+  },
+
   server: {
     proxy: {
       '/api/core': {

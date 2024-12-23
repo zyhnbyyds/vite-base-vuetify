@@ -17,7 +17,6 @@ export function useSocket() {
   const socket = connect(socketConnectUrl, { auth: { token: getToken() } })
 
   socket.on('connect', async () => {
-    console.log('connect')
     const res = await socket.emitWithAck('login')
     if (res.code === 403) {
       removeToken()

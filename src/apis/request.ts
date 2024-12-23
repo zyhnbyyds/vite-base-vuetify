@@ -48,27 +48,6 @@ export const coreReq = ofetch.create({
   },
 })
 
-export const gateWayReq = ofetch.create({
-  timeout: 20000,
-  retry: 3,
-  retryDelay: 300,
-  baseURL: '/api/gateway',
-  onRequest({ options }) {
-    handleOnRequest(options)
-  },
-  onRequestError({ request, options, error }) {
-    console.log(error, request, options)
-  },
-
-  onResponseError({ response }) {
-    handleOnResponseError(response)
-  },
-
-  onResponse({ response }) {
-    handleOnResponse(response)
-  },
-})
-
 function handleOnRequest(options: ResolvedFetchOptions<ResponseType>) {
   const token = getToken()
   if (token) {
@@ -80,6 +59,11 @@ function handleOnResponse(response: FetchResponse<ApiResult>) {
   const res = response._data
   if (res && res.code !== 0 && response.ok) {
     showMsg(res.message)
+
+    if (res.code === 401) {
+      removeToken()
+      router.push('/login')
+    }
   }
 }
 

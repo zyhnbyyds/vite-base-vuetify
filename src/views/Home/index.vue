@@ -40,19 +40,15 @@ function toggleDark() {
 }
 
 async function handleClickSendMsg() {
-  socket.emit('sendMessage', {
+  await socket.emitWithAck('sendMessage', {
     toUser: chatUserId.value,
     content: sendMessageText.value,
     messageType: 1,
   })
 
   mockMessages.value.push({
-    nickName: '小帅',
-    avatar: 'https://picsum.photos/200/300',
     content: sendMessageText.value,
-    time: '2023-01-01 12:00:00',
-    messageId: mockMessages.value.length + 1,
-    userId: 1,
+    messageType: 1,
     isMe: true,
   })
 
@@ -76,23 +72,6 @@ function handleClickAdd() {
   isShowAdd.value = !isShowAdd.value
 }
 
-function handleClickChat() {
-  if (!chatUserId.value) {
-    return
-  }
-  const isExist = userFriendList.value.find(item => item.userId === chatUserId.value)
-  if (isExist) {
-    selectedUser.value = chatUserId.value
-    return
-  }
-
-  userFriendList.value.push({
-    userId: chatUserId.value,
-    userName: '陌生人',
-    avatar: 'https://picsum.photos/200/300',
-  })
-}
-
 function handleInit() {
   getUserFriendList()
 }
@@ -101,98 +80,87 @@ handleInit()
 </script>
 
 <template>
-  <Toolbar>
-    <template #start>
-      <Button
-        icon="pi pi-bars"
-        class="p-button-rounded p-button-text"
-      >
-        <template #icon>
-          <div class="i-lucide:bot" />
-          {{ }}
-        </template>
-      </Button>
-
-      Chat
-    </template>
-    <template #center>
-      <IconField>
-        <InputIcon>
-          <i class="pi pi-search" />
-        </InputIcon>
-        <InputText v-model="chatUserId" placeholder="Search" />
-      </IconField>
-      <Button size="small" severity="contrast" ml-3 @click="handleClickChat">
-        CHAT
-      </Button>
-    </template>
-    <template #end>
-      <div class="ml-auto flex items-center">
+  <div class="h-full w-full">
+    <Toolbar>
+      <template #start>
         <Button
-          icon="pi pi-moon"
+          icon="pi pi-bars"
           class="p-button-rounded p-button-text"
-          @click="toggleDark"
-        />
-        <Button
-          icon="pi pi-plus-circle"
-          class="p-button-rounded p-button-text"
-          @click="handleClickAdd"
-        />
-      </div>
-    </template>
-  </Toolbar>
+        >
+          <template #icon>
+            <div class="i-lucide:bot" />
+          </template>
+        </Button>
 
-  <Dialog v-model:visible="isShowAdd">
-    <AddFriend />
-  </Dialog>
+        Chat
+      </template>
 
-  <Splitter h-screen :gutter-size="2">
-    <SplitterPanel :size="25" :min-size="15" p-2>
-      <Listbox v-model="selectedUser" :options="userFriendList" option-label="nickName" option-value="userId">
-        <template #option="slotProps">
-          <div class="flex items-center">
-            <img
-              :src="slotProps.option.avatar || 'https://randomuser.me/api/portraits/women/8.jpg'"
-              class="w-10 h-10 rounded-md mr-3"
-              alt="avatar"
-            >
-            <div class="font-bold text-sm">
-              {{ slotProps.option.userName }}
-            </div>
-          </div>
-        </template>
-      </Listbox>
-    </SplitterPanel>
-    <SplitterPanel :size="75" :min-size="75">
-      <div class="flex flex-col ">
-        <div h-full m-0 p-0>
-          <div h-60px w-full text-center font-bold text-6 py-2>
-            {{ currentChattingUser?.userId }}
-          </div>
-          <Splitter class="h-[calc(100vh-124px)]" layout="vertical" :gutter-size="2">
-            <SplitterPanel :size="70" :min-size="50">
-              <div ref="chatContainerRef" px-5 h-full overflow-y-auto scrollbar scrollbar-w-2 scrollbar-thumb-radius-4 scrollbar-track-radius-2 scrollbar-track-color-transparent dark:scrollbar-thumb-color-dark-500 scrollbar-thumb-color-light-500>
-                <div v-for="item in mockMessages" :key="item.messageId" mb-4 :class="item.isMe ? 'text-right' : 'text-left'">
-                  <ChatMsgItem :chat-item-info="item" />
-                </div>
-              </div>
-            </SplitterPanel>
-
-            <SplitterPanel :size="30" :min-size="20">
-              <div h-full w-full relative of-hidden>
-                <textarea ref="msgIptRef" v-model="sendMessageText" p-4 border-none class="emoji-style" resize-none transition-colors bg-light-6 focus:bg-light-3 dark:bg-dark-800 focus:dark:bg-dark-500 outline-none h-full w-full autofocus />
-                <div class="flex justify-end absolute right-6 bottom-6">
-                  <Button :disabled="!sendMessageText" @click="handleClickSendMsg">
-                    发送
-                  </Button>
-                </div>
-              </div>
-            </SplitterPanel>
-          </Splitter>
+      <template #end>
+        <div class="ml-auto flex items-center">
+          <Button
+            icon="pi pi-moon"
+            class="p-button-rounded p-button-text"
+            @click="toggleDark"
+          />
+          <Button
+            icon="pi pi-plus-circle"
+            class="p-button-rounded p-button-text"
+            @click="handleClickAdd"
+          />
         </div>
-      </div>
-    </SplitterPanel>
-  </Splitter>
+      </template>
+    </Toolbar>
+
+    <AddFriend v-model="isShowAdd" />
+
+    <Splitter h-screen :gutter-size="2">
+      <SplitterPanel :size="25" :min-size="15" p-2>
+        <Listbox v-model="selectedUser" :options="userFriendList" option-label="nickName" option-value="userId">
+          <template #option="slotProps">
+            <div class="flex items-center">
+              <img
+                :src="slotProps.option.user.avatarUrl"
+                class="w-10 h-10 rounded-md mr-3"
+                alt="avatarUrl"
+              >
+              <div class="font-bold text-sm">
+                {{ slotProps.option.user.nickname }}
+              </div>
+            </div>
+          </template>
+        </Listbox>
+      </SplitterPanel>
+      <SplitterPanel :size="75" :min-size="75">
+        <div class="flex flex-col ">
+          <div h-full m-0 p-0>
+            <div h-60px w-full text-center font-bold text-6 py-2>
+              {{ currentChattingUser?.userId }}
+            </div>
+            <Splitter class="h-[calc(100vh-124px)]" layout="vertical" :gutter-size="2">
+              <SplitterPanel :size="70" :min-size="50">
+                <div ref="chatContainerRef" px-5 h-full overflow-y-auto scrollbar scrollbar-w-2 scrollbar-thumb-radius-4 scrollbar-track-radius-2 scrollbar-track-color-transparent dark:scrollbar-thumb-color-dark-500 scrollbar-thumb-color-light-500>
+                  <div v-for="item in mockMessages" :key="item.messageId" mb-4 :class="item.isMe ? 'text-right' : 'text-left'">
+                    <ChatMsgItem :chat-item-info="item" />
+                  </div>
+                </div>
+              </SplitterPanel>
+
+              <SplitterPanel :size="30" :min-size="20">
+                <div h-full w-full relative of-hidden>
+                  <textarea ref="msgIptRef" v-model="sendMessageText" p-4 border-none class="emoji-style" resize-none transition-colors bg-light-6 focus:bg-light-3 dark:bg-dark-800 focus:dark:bg-dark-500 outline-none h-full w-full autofocus />
+                  <div class="flex justify-end absolute right-6 bottom-6">
+                    <Button :disabled="!sendMessageText" @click="handleClickSendMsg">
+                      发送
+                    </Button>
+                  </div>
+                </div>
+              </SplitterPanel>
+            </Splitter>
+          </div>
+        </div>
+      </SplitterPanel>
+    </Splitter>
+  </div>
 </template>
 
 <style scoped>

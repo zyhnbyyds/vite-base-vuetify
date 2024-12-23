@@ -2,6 +2,11 @@
 import { doAddImFriend } from '@/apis/imFriend.api'
 import { useToast } from 'primevue'
 
+const emits = defineEmits<{
+  (event: 'success'): void
+}>()
+const visible = defineModel<boolean>({ default: false })
+
 const searchUserId = ref('')
 const remark = ref('')
 const loading = ref(false)
@@ -9,19 +14,20 @@ const toast = useToast()
 
 async function handleAddFriend() {
   if (!searchUserId.value) {
-    toast.add({ severity: 'warn', summary: '提示', detail: '请输入用户ID', life: 3000 })
-    console.log(111)
+    toast.add({ severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000 })
     return
   }
 
   try {
     loading.value = true
-    const { code } = await doAddImFriend(searchUserId.value)
+    const { code } = await doAddImFriend(searchUserId.value, remark.value)
     if (code === 0) {
       toast.add({ severity: 'success', summary: '成功', detail: '添加好友成功', life: 3000 })
       // 重置表单
       searchUserId.value = ''
       remark.value = ''
+      visible.value = false
+      emits('success')
     }
   }
   catch (error: any) {
@@ -34,26 +40,22 @@ async function handleAddFriend() {
 </script>
 
 <template>
-  <div>
+  <div class="hw-full">
     <Toast position="top-left" group="tl" />
 
-    <Card>
-      <template #title>
-        添加好友
-      </template>
+    <Dialog v-model:visible="visible" modal header="添加好友">
+      <InputText
+        v-model="searchUserId"
+        placeholder="User ID"
+        fluid
+      />
 
-      <template #content>
-        <InputText
-          v-model="searchUserId"
-          fluid
-        />
-
-        <InputText
-          v-model="remark"
-          mt-4
-          fluid
-        />
-      </template>
+      <InputText
+        v-model="remark"
+        placeholder="Remark"
+        mt-4
+        fluid
+      />
 
       <template #footer>
         <div class="flex justify-end gap-2">
@@ -61,7 +63,7 @@ async function handleAddFriend() {
             label="取消"
             severity="secondary"
             text
-            @click="$emit('close')"
+            @click="() => visible = false"
           />
           <Button
             label="添加"
@@ -70,7 +72,7 @@ async function handleAddFriend() {
           />
         </div>
       </template>
-    </Card>
+    </Dialog>
   </div>
 </template>
 
