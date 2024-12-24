@@ -1,4 +1,5 @@
 import { socketConnectUrl } from '@/config/constant'
+import { useAuthStore } from '@/store/auth'
 import { getToken, removeToken } from '@/utils/request'
 import { connect } from 'socket.io-client'
 
@@ -10,11 +11,13 @@ export interface MessageItem {
 }
 
 export function useSocket() {
-  if (!getToken()) {
+  const { userInfo } = useAuthStore()
+
+  if (!getToken() || !userInfo) {
     throw new Error('Please login first')
   }
 
-  const socket = connect(socketConnectUrl, { auth: { token: getToken() } })
+  const socket = connect(socketConnectUrl, { auth: { token: getToken(), userId: userInfo.userId } })
 
   socket.on('connect', async () => {
     const res = await socket.emitWithAck('login')

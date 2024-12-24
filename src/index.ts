@@ -10,6 +10,7 @@ import './style/index.css'
 import 'virtual:uno.css'
 import '@unocss/reset/normalize.css'
 import 'primeicons/primeicons.css'
+import 'ant-design-vue/dist/reset.css'
 
 export const app = createApp(App)
 const pinia = createPinia()

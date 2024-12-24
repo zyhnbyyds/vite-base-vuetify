@@ -1,4 +1,5 @@
 import type { ImUserFriend } from '@zgyh/prisma-mongo'
+import type { User } from '@zgyh/prisma-mysql'
 import type { ApiResult } from './interface'
 import { coreReq } from './request'
 
@@ -15,7 +16,7 @@ export function doUpdateImFriendStatus(userId: string, status: number) {
 }
 
 export function doGetImFriendList() {
-  return coreReq<ApiResult<ImUserFriend[]>>('/core/im/friend/list')
+  return coreReq<ApiResult<(ImUserFriend & { user: User })[]>>('/core/im/friend/list')
 }
 
 export function doAddImFriend(friendId: string, remark: string) {

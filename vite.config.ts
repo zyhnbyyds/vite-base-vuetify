@@ -1,7 +1,9 @@
 import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import UnoCSS from 'unocss/vite'
 import unpluginAutoImport from 'unplugin-auto-import/vite'
+import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import unpluginVueComponent from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { authReqBaseUrl, coreReqBaseUrl, gatewayBaseUrl } from './src/config/constant'
@@ -29,10 +31,11 @@ export default defineConfig({
         dirs: ['src/components'],
         extensions: ['vue'],
         dts: './src/types/components.d.ts',
-        resolvers: [PrimeVueResolver()],
+        resolvers: [PrimeVueResolver(), AntDesignVueResolver({ importStyle: false })],
       },
     ),
     UnoCSS(),
+    vueJsx(),
   ],
 
   build: {
