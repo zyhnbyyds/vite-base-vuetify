@@ -14,3 +14,13 @@ export interface ApiResult<T = object> {
   data: T | null
   message: string
 }
+
+export interface PageCommon {
+  current: number
+  size: number
+}
+
+export interface ListCommon<T> {
+  list: T[]
+  total: number
+}

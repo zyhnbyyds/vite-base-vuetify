@@ -1,7 +1,8 @@
 <script lang='tsx' setup>
-import type { ImUserFriend } from '@zgyh/prisma-mongo'
-import type { User } from '@zgyh/prisma-mysql'
-import { doGetImFriendList } from '@/apis/imFriend.api'
+import type { ImFriendListWithUnreadMsgCountItem } from '@/apis/imFriend.api'
+import type { MessageItem } from '@/apis/imMessage.api'
+import { doGetImFriendListWithUnreadMsgCount } from '@/apis/imFriend.api'
+import { doGetImMessageList } from '@/apis/imMessage.api'
 import { useSocket } from '@/hooks/socket'
 import AddFriend from './components/AddFriend.vue'
 
@@ -9,21 +10,39 @@ const { socket } = useSocket()
 
 const chatContainerRef = ref<HTMLElement>()
 const msgIptRef = ref<HTMLTextAreaElement>()
-const userFriendList = ref<(ImUserFriend & { user: User })[]>([])
-const mockMessages = ref<any[]>([])
+const userFriendList = ref<(ImFriendListWithUnreadMsgCountItem)[]>([])
+const messgeList = ref<MessageItem[]>([])
 const sendMessageText = ref('')
 const isShowAdd = ref(false)
 const chatUserId = ref('')
+const messageListPage = ref({
+  current: 1,
+  size: 10,
+})
 
 const menuFriendList = computed(() => userFriendList.value.map(item => ({
   title: item.user.nickname,
   label: item.user.nickname,
   value: item.friendId,
   key: item.friendId,
-  icon: () => <img class="h-5 w-5" src={item.user.avatarUrl} />,
+  ...item,
+  icon: () => <img class="h-5 w-5" src={item.user.avatarUrl}><slot /></img>,
 })))
 
 const currentChatUser = computed(() => userFriendList.value.find(item => item.friendId === chatUserId.value))
+
+watch(() => chatUserId.value, (val) => {
+  messgeList.value = []
+  if (val) {
+    getImMessageList()
+
+    userFriendList.value.forEach((item) => {
+      if (item.friendId === val) {
+        item.unreadCount = 0
+      }
+    })
+  }
+})
 
 const { focused } = useFocus(msgIptRef)
 
@@ -33,7 +52,15 @@ onKeyStroke('Enter', () => {
 })
 
 socket.on('receiveMessage', (val) => {
-  mockMessages.value.push({ ...val, isMe: false })
+  if (val.fromUser.userId !== chatUserId.value) {
+    userFriendList.value.forEach((item) => {
+      if (item.friendId === val.fromUser.userId) {
+        item.unreadCount += 1
+      }
+    })
+    return
+  }
+  messgeList.value.push({ ...val, isMe: false })
   nextTick(() => {
     chatContainerRef.value?.scrollTo({
       top: chatContainerRef.value?.scrollHeight,
@@ -52,9 +79,9 @@ async function handleClickSendMsg() {
     messageType: 1,
   })
 
-  mockMessages.value.push({
+  messgeList.value.push({
     content: sendMessageText.value,
-    messageType: 1,
+    type: 0,
     isMe: true,
   })
 
@@ -68,9 +95,19 @@ async function handleClickSendMsg() {
 }
 
 async function getUserFriendList() {
-  const { data } = await doGetImFriendList()
+  const { data } = await doGetImFriendListWithUnreadMsgCount()
   if (data) {
     userFriendList.value = data
+  }
+}
+
+async function getImMessageList() {
+  const { data } = await doGetImMessageList({ ...messageListPage.value, friendId: chatUserId.value })
+  if (data) {
+    messgeList.value = data.list
+    socket.emit('readMessage', {
+      friendId: chatUserId.value,
+    })
   }
 }
 
@@ -120,17 +157,10 @@ handleInit()
     <AddFriend v-model="isShowAdd" @success="getUserFriendList" />
 
     <Splitter h-screen :gutter-size="2">
-      <SplitterPanel :size="25" :min-size="15" p-2>
-        <!-- <AMenu
-          v-model:selected-keys="chatUserId"
-          mode="vertical"
-          class=" p-0 rounded-none"
-          :items="menuFriendList"
-        /> -->
-
-        <BMenu v-model="chatUserId" :list="menuFriendList" />
+      <SplitterPanel :size="20" :min-size="15" p-2>
+        <BMenu v-model="chatUserId" badge-key="unreadCount" show-badge :list="menuFriendList" />
       </SplitterPanel>
-      <SplitterPanel :size="75" :min-size="75">
+      <SplitterPanel :size="80" :min-size="80">
         <div class="flex flex-col ">
           <div h-full m-0 p-0 class="bg-#e5e5e5 bg-op30">
             <div h-60px w-full text-center font-bold text-6 py-2>
@@ -139,8 +169,8 @@ handleInit()
             <Splitter class="h-[calc(100vh-124px)]" layout="vertical" :gutter-size="2">
               <SplitterPanel :size="70" :min-size="50">
                 <div ref="chatContainerRef" class="bg-#e5e5e5 bg-op30" h-full px-4 pt-4 overflow-y-auto scrollbar scrollbar-w-2 scrollbar-thumb-radius-4 scrollbar-track-radius-2 scrollbar-track-color-transparent dark:scrollbar-thumb-color-dark-500 scrollbar-thumb-color-gray-200>
-                  <div v-for="item in mockMessages" :key="item.messageId" mb-4 :class="item.isMe ? 'text-right' : 'text-left'">
-                    <ChatMsgItem :chat-item-info="item" />
+                  <div v-for="item in messgeList" :key="item.messageId" mb-4 :class="item.isMe ? 'text-right' : 'text-left'">
+                    <ChatMsgItem :chat-user-info="currentChatUser?.user" :message-info="item" />
                   </div>
                 </div>
               </SplitterPanel>

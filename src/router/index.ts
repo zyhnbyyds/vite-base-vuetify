@@ -1,3 +1,6 @@
+import { doGetUserInfo } from '@/apis/user.api'
+import { useAuthStore } from '@/store/auth'
+import { storeToRefs } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import { getToken } from '../utils/request'
 
@@ -48,12 +51,11 @@ export const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const { userInfo } = storeToRefs(useAuthStore())
   const token = getToken()
   if (to.name) {
     if (!router.hasRoute(to.name)) {
-      console.log(router.hasRoute(to.name))
-
       next({ name: 'notFound' })
       return
     }
@@ -61,8 +63,32 @@ router.beforeEach((to, _from, next) => {
   if (to.path !== '/login' && !token) {
     next({ name: 'login' })
   }
-  else if (to.path === '/login' && token) {
-    next({ name: 'home' })
+
+  if (token) {
+    if (userInfo.value) {
+      if (to.name === 'profile') {
+        next('/')
+      }
+      else {
+        next()
+      }
+    }
+    else {
+      // TODO: show global loading
+      const { data } = await doGetUserInfo()
+      if (data && data.user) {
+        userInfo.value = data.user
+        if (to.name === 'profile') {
+          next('/')
+        }
+        else {
+          next()
+        }
+      }
+      else if (data && data.imUser) {
+        router.push('/profile')
+      }
+    }
   }
   else {
     next()

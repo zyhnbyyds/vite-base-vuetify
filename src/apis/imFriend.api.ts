@@ -8,6 +8,11 @@ export interface ImFriendInfo {
   status: number
 }
 
+export type ImFriendListWithUnreadMsgCountItem = {
+  user: User
+  unreadCount: number
+} & ImUserFriend
+
 export function doUpdateImFriendStatus(userId: string, status: number) {
   return coreReq<ApiResult<ImFriendInfo>>('/api/core/im/friend/update-status', {
     body: { userId, status },
@@ -17,6 +22,10 @@ export function doUpdateImFriendStatus(userId: string, status: number) {
 
 export function doGetImFriendList() {
   return coreReq<ApiResult<(ImUserFriend & { user: User })[]>>('/core/im/friend/list')
+}
+
+export function doGetImFriendListWithUnreadMsgCount() {
+  return coreReq<ApiResult<ImFriendListWithUnreadMsgCountItem[]>>('/core/im/friend/list/withUnreadMessageCount')
 }
 
 export function doAddImFriend(friendId: string, remark: string) {
