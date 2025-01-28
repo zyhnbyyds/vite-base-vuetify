@@ -2,6 +2,7 @@
 import type { CompleteUserBody } from '@/apis/user.api'
 import { doCompleteUserInfo } from '@/apis/user.api'
 import { phoneReg } from '@/config/regex'
+import { useTimeZone } from '@/hooks/useTimeZone'
 import { type Rule, useForm } from 'ant-design-vue/es/form'
 import { useToast } from 'primevue'
 import { reactive } from 'vue'
@@ -45,15 +46,25 @@ const { validate, resetFields } = useForm(formData, rules)
 function handleSubmit() {
   validate()
     .then(async () => {
-      await doCompleteUserInfo(formData)
+      const { code, message } = await doCompleteUserInfo({ ...formData, ...useTimeZone() })
 
-      toast.add({
-        severity: 'success',
-        summary: '提交成功',
-        detail: '个人信息已更新',
-        life: 2000,
-      })
-      router.push('/')
+      if (code === 0) {
+        toast.add({
+          severity: 'success',
+          summary: '提交成功',
+          detail: '个人信息已更新',
+          life: 2000,
+        })
+        router.push('/')
+      }
+      else {
+        toast.add({
+          severity: 'error',
+          summary: '提交失败',
+          detail: message,
+          life: 2000,
+        })
+      }
     })
     .catch((err) => {
       console.log(err)

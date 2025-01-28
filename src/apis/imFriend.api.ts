@@ -1,4 +1,4 @@
-import type { ImUserFriend } from '@zgyh/prisma-mongo'
+import type { ImFriend } from '@zgyh/prisma-mongo'
 import type { User } from '@zgyh/prisma-mysql'
 import type { ApiResult } from './interface'
 import { coreReq } from './request'
@@ -11,7 +11,7 @@ export interface ImFriendInfo {
 export type ImFriendListWithUnreadMsgCountItem = {
   user: User
   unreadCount: number
-} & ImUserFriend
+} & ImFriend
 
 export function doUpdateImFriendStatus(userId: string, status: number) {
   return coreReq<ApiResult<ImFriendInfo>>('/api/core/im/friend/update-status', {
@@ -21,7 +21,7 @@ export function doUpdateImFriendStatus(userId: string, status: number) {
 }
 
 export function doGetImFriendList() {
-  return coreReq<ApiResult<(ImUserFriend & { user: User })[]>>('/core/im/friend/list')
+  return coreReq<ApiResult<(ImFriend & { user: User })[]>>('/core/im/friend/list')
 }
 
 export function doGetImFriendListWithUnreadMsgCount() {

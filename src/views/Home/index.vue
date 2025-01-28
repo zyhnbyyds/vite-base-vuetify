@@ -3,10 +3,11 @@ import type { ImFriendListWithUnreadMsgCountItem } from '@/apis/imFriend.api'
 import type { MessageItem } from '@/apis/imMessage.api'
 import { doGetImFriendListWithUnreadMsgCount } from '@/apis/imFriend.api'
 import { doGetImMessageList } from '@/apis/imMessage.api'
-import { useSocket } from '@/hooks/socket'
+import { useSocketStore } from '@/store/socket'
 import AddFriend from './components/AddFriend.vue'
+import Notification from './components/Notification.vue'
 
-const { socket } = useSocket()
+const { socket } = useSocketStore()
 
 const chatContainerRef = ref<HTMLElement>()
 const msgIptRef = ref<HTMLTextAreaElement>()
@@ -51,7 +52,7 @@ onKeyStroke('Enter', () => {
     handleClickSendMsg()
 })
 
-socket.on('receiveMessage', (val) => {
+socket?.on('receiveMessage', (val) => {
   if (val.fromUser.userId !== chatUserId.value) {
     userFriendList.value.forEach((item) => {
       if (item.friendId === val.fromUser.userId) {
@@ -69,11 +70,8 @@ socket.on('receiveMessage', (val) => {
   })
 })
 
-function toggleDark() {
-}
-
 async function handleClickSendMsg() {
-  socket.emitWithAck('sendMessage', {
+  socket?.emitWithAck('sendMessage', {
     toUser: chatUserId.value,
     content: sendMessageText.value,
     messageType: 1,
@@ -105,7 +103,7 @@ async function getImMessageList() {
   const { data } = await doGetImMessageList({ ...messageListPage.value, friendId: chatUserId.value })
   if (data) {
     messgeList.value = data.list
-    socket.emit('readMessage', {
+    socket?.emit('readMessage', {
       friendId: chatUserId.value,
     })
   }
@@ -116,6 +114,9 @@ function handleClickAdd() {
 }
 
 function handleInit() {
+  if (!socket) {
+    console.log(1)
+  }
   getUserFriendList()
 }
 
@@ -140,10 +141,11 @@ handleInit()
 
       <template #end>
         <div class="ml-auto flex items-center">
+          <Notification />
+
           <Button
             icon="pi pi-moon"
             class="p-button-rounded p-button-text"
-            @click="toggleDark"
           />
           <Button
             icon="pi pi-plus-circle"

@@ -1,5 +1,6 @@
 <script lang='ts' setup>
-import { doAddImFriend } from '@/apis/imFriend.api'
+import type { ApiResult } from '@/apis/interface'
+import { useSocketStore } from '@/store/socket'
 import { useToast } from 'primevue'
 
 const emits = defineEmits<{
@@ -7,12 +8,17 @@ const emits = defineEmits<{
 }>()
 const visible = defineModel<boolean>({ default: false })
 
+const { socket } = useSocketStore()
+
 const searchUserId = ref('')
 const remark = ref('')
 const loading = ref(false)
 const toast = useToast()
 
 async function handleAddFriend() {
+  if (!socket) {
+    return
+  }
   if (!searchUserId.value) {
     toast.add({ severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000 })
     return
@@ -20,14 +26,31 @@ async function handleAddFriend() {
 
   try {
     loading.value = true
-    const { code } = await doAddImFriend(searchUserId.value, remark.value)
+
+    const { code } = await socket?.emitWithAck('sendFriendAdd', {
+      friendId: searchUserId.value,
+      remark: remark.value,
+    }) as ApiResult
+
     if (code === 0) {
-      toast.add({ severity: 'success', summary: '成功', detail: '添加好友成功', life: 3000 })
-      // 重置表单
+      toast.add({
+        severity: 'success',
+        summary: '发送成功',
+        detail: '好友申请已发送',
+        life: 2000,
+      })
       searchUserId.value = ''
       remark.value = ''
       visible.value = false
       emits('success')
+    }
+    else {
+      toast.add({
+        severity: 'error',
+        summary: '发送失败',
+        detail: '好友申请发送失败',
+        life: 2000,
+      })
     }
   }
   catch (error: any) {

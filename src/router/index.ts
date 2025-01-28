@@ -1,8 +1,9 @@
 import { doGetUserInfo } from '@/apis/user.api'
 import { useAuthStore } from '@/store/auth'
+import { socketInitAfterLogin } from '@/utils/socket'
 import { storeToRefs } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import { getToken } from '../utils/request'
+import { getToken, removeToken } from '../utils/request'
 
 const constantRoutes = [
   {
@@ -62,9 +63,15 @@ router.beforeEach(async (to, from, next) => {
   }
   if (to.path !== '/login' && !token) {
     next({ name: 'login' })
+    return
   }
 
   if (token) {
+    if (to.name === 'login' && from.name !== 'login') {
+      removeToken()
+      next()
+    }
+
     if (userInfo.value) {
       if (to.name === 'profile') {
         next('/')
@@ -75,18 +82,37 @@ router.beforeEach(async (to, from, next) => {
     }
     else {
       // TODO: show global loading
-      const { data } = await doGetUserInfo()
-      if (data && data.user) {
-        userInfo.value = data.user
-        if (to.name === 'profile') {
-          next('/')
+      try {
+        const { data } = await doGetUserInfo()
+
+        if (data && data.user) {
+          socketInitAfterLogin(data.user)
+          userInfo.value = data.user
+          if (to.name === 'profile') {
+            next('/')
+          }
+          else {
+            next()
+          }
+        }
+        else if (data && data.registerUser) {
+          socketInitAfterLogin(data.registerUser)
+          if (to.name !== 'profile') {
+            next('/profile')
+          }
+          else {
+            next()
+          }
         }
         else {
-          next()
+          removeToken()
+          next('/login')
         }
       }
-      else if (data && data.imUser) {
-        router.push('/profile')
+
+      catch (error) {
+        console.log(error)
+        next('/login')
       }
     }
   }
